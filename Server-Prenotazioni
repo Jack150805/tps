@@ -1,0 +1,63 @@
+package server;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+public class Prenotazioni {
+	
+	private HashMap<String, List<String>> aule = new HashMap<>();
+	
+	public Prenotazioni() {
+		inizializzaLaboratori();
+	}
+	
+	private void inizializzaLaboratori() {
+		aule.put("292", new ArrayList<>());
+		aule.put("221", new ArrayList<>());
+		aule.put("228", new ArrayList<>());
+		aule.put("230", new ArrayList<>());
+	}
+	
+	public boolean prenota(String aula, String prof) {
+		List<String> prenotazioni = aule.get(aula);
+		
+		if (prenotazioni == null) {
+			return false;
+		} else {
+			prenotazioni.add(prof);
+			return true;
+		}
+	}
+	
+	public String listaAule() {
+		StringBuilder out = new StringBuilder();
+		
+		out.append("Aule: ");
+		for (String aula : aule.keySet()) {
+			out.append(aula + ", ");
+		}
+		
+		// Esempio di output previsto --> "Aule: 292, 221, 228, 230, "
+		
+		return out.toString();
+	}
+	
+	public String listaPrenotazioniPerAule(String aula) {
+		StringBuilder out = new StringBuilder();
+		
+		List<String> prenotazioni = aule.get(aula);
+		if (prenotazioni == null) {
+			return "Metti una aula valida";
+		} else {
+			out.append("Prenotazioni per aula " + aula +": ");
+			for (String prof : prenotazioni) {
+				out.append(prof + ", ");
+			}
+			
+			// Esempio di output previsto --> "Prenotazioni per aula AULA: NOME, NOME, NOME, "
+			
+			return out.toString();
+		}
+	}
+}
