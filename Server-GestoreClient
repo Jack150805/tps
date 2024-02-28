@@ -1,0 +1,73 @@
+package server;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+
+public class GestoreClient implements Runnable {
+	
+	private Socket socket;
+	
+	private Prenotazioni prenotazioni;
+	
+	public GestoreClient(Socket socket, Prenotazioni prenotazioni) {
+		this.socket = socket;
+		this.prenotazioni = prenotazioni;
+		
+		// Alt + Shift + S per creare costruttore
+	}
+
+	@Override
+	public void run() {
+		System.out.println("ciao un utente si è connesso alla chat");
+		
+		try {
+			BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			PrintWriter writer = new PrintWriter(socket.getOutputStream());
+			
+			while (socket.isConnected()) {
+				String line = reader.readLine();
+				
+				if (line == null) {
+					break;
+				} else {
+					String out = "Inserisci un comando valido";
+					
+					// @ --> lista delle aule
+					// @221 --> lista prenotazioni per aula
+					// 221 Ghidotti --> prenota aula x per prof y
+					// Altrimenti --> comando invalido
+					
+					if (line.startsWith("@")) {
+						if (line.length() == 1) {
+							out = prenotazioni.listaAule();
+						} else {
+							out = prenotazioni.listaPrenotazioniPerAule(line.substring(1));
+						}
+					} else {
+						String[] cmds = line.split(" ");
+						
+						if (cmds.length >= 2) {
+							if (prenotazioni.prenota(cmds[0], cmds[1])) {
+								out = "Aula prenotata con successo";
+							}
+						}
+					}
+					
+					writer.println("[SERVER] " + out);
+					writer.flush();
+				}
+			}
+			
+			reader.close();
+			writer.close();
+			socket.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		System.out.println("addio frocio");
+	}
+}
